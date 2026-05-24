@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ember: var(--ember);
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.14 0.005 240);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.18 0.005 240);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.18 0.005 240);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.98 0 0);
+  --primary-foreground: oklch(0.14 0.005 240);
+  --secondary: oklch(0.24 0.005 240);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.22 0.005 240);
+  --muted-foreground: oklch(0.68 0.005 240);
+  --accent: oklch(0.24 0.005 240);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.65 0.2 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.7 0 0);
+  --ember: oklch(0.7 0.15 45);
+}
+
+/* Light mode: white background, ink text, softened cave. Overrides the raw
+   white/black utilities used throughout the page so it blends naturally. */
+.light {
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.18 0.005 240);
+  --card: oklch(0.97 0 0);
+  --card-foreground: oklch(0.18 0.005 240);
+  --popover: oklch(0.99 0 0);
+  --popover-foreground: oklch(0.18 0.005 240);
+  --primary: oklch(0.18 0.005 240);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.94 0 0);
+  --secondary-foreground: oklch(0.18 0.005 240);
+  --muted: oklch(0.94 0 0);
+  --muted-foreground: oklch(0.45 0.005 240);
+  --accent: oklch(0.94 0 0);
+  --accent-foreground: oklch(0.18 0.005 240);
+  --border: oklch(0 0 0 / 10%);
+  --input: oklch(0 0 0 / 12%);
+  --ring: oklch(0.5 0 0);
+  --ember: oklch(0.55 0.19 40);
+}
+
+/* Class-based blending: swap the raw white/black utilities into light-friendly
+   ink tones without rewriting every component. */
+.light .text-white { color: oklch(0.18 0.005 240) !important; }
+.light .text-white\/95 { color: oklch(0.2 0.005 240 / 0.95) !important; }
+.light .text-white\/90 { color: oklch(0.22 0.005 240 / 0.92) !important; }
+.light .text-white\/85 { color: oklch(0.25 0.005 240 / 0.9) !important; }
+.light .text-white\/80 { color: oklch(0.28 0.005 240 / 0.88) !important; }
+.light .text-white\/75 { color: oklch(0.3 0.005 240 / 0.85) !important; }
+.light .text-white\/70 { color: oklch(0.32 0.005 240 / 0.82) !important; }
+.light .text-white\/60 { color: oklch(0.38 0.005 240 / 0.78) !important; }
+.light .text-white\/55 { color: oklch(0.42 0.005 240 / 0.75) !important; }
+.light .text-white\/50 { color: oklch(0.45 0.005 240 / 0.72) !important; }
+.light .text-white\/45 { color: oklch(0.48 0.005 240 / 0.7) !important; }
+.light .text-white\/40 { color: oklch(0.52 0.005 240 / 0.68) !important; }
+.light .text-white\/25 { color: oklch(0.65 0.005 240 / 0.55) !important; }
+.light .text-white\/20 { color: oklch(0.7 0.005 240 / 0.5) !important; }
+
+.light .bg-white { background-color: oklch(0.18 0.005 240) !important; }
+.light .hover\:bg-white\/90:hover { background-color: oklch(0.22 0.005 240) !important; }
+.light .text-black { color: oklch(0.99 0 0) !important; }
+
+.light .bg-black\/70 { background-color: oklch(1 0 0 / 0.75) !important; }
+.light .bg-black\/60 { background-color: oklch(1 0 0 / 0.7) !important; }
+.light .bg-black\/50 { background-color: oklch(1 0 0 / 0.65) !important; }
+.light .bg-black\/40 { background-color: oklch(1 0 0 / 0.6) !important; }
+.light .bg-black\/30 { background-color: oklch(1 0 0 / 0.55) !important; }
+
+.light .bg-white\/5,
+.light .bg-white\/\[0\.03\],
+.light .bg-white\/\[0\.04\],
+.light .bg-white\/\[0\.05\],
+.light .bg-white\/\[0\.06\] {
+  background-color: oklch(0 0 0 / 0.04) !important;
+}
+.light .hover\:bg-white\/10:hover { background-color: oklch(0 0 0 / 0.08) !important; }
+
+.light .border-white\/5 { border-color: oklch(0 0 0 / 0.06) !important; }
+.light .border-white\/10 { border-color: oklch(0 0 0 / 0.1) !important; }
+.light .border-white\/15 { border-color: oklch(0 0 0 / 0.14) !important; }
+.light .bg-white\/15,
+.light .bg-white\/20 { background-color: oklch(0 0 0 / 0.15) !important; }
+.light .bg-white\/50 { background-color: oklch(0 0 0 / 0.45) !important; }
+
+/* Gradient overlays on top of the cave hero flip to light. */
+.light .from-background\/40 { --tw-gradient-from: oklch(0.99 0 0 / 0.5) !important; }
+.light .via-background\/30 { --tw-gradient-via: oklch(0.99 0 0 / 0.4) !important; }
+.light .from-black\/40 { --tw-gradient-from: oklch(1 0 0 / 0.5) !important; }
+.light .via-black\/30 { --tw-gradient-via: oklch(1 0 0 / 0.4) !important; }
+.light .to-black\/60 { --tw-gradient-to: oklch(1 0 0 / 0.7) !important; }
+
+/* Cave hero: in light mode we lighten the dark cave image so it reads as a
+   soft stone texture behind the white page, rather than inverting it away. */
+.light .cave-hero {
+  filter: brightness(1.6) contrast(0.65) saturate(0.3) sepia(0.05);
+  opacity: 0.6 !important;
+}
+
+/* SVG chart line reads as ink in light mode. */
+.light svg path[stroke="white"] { stroke: oklch(0.2 0.005 240) !important; }
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.grid-background {
+  background-size: 50px 50px;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+}
+
+.grid-background-light {
+  background-size: 50px 50px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.025) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Monospace font settings for headings */
+.lowercase-mono {
+  font-family: monospace, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
