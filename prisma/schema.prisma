@@ -87,3 +87,16 @@ model PullRequest {
   @@unique([repositoryId, number])
 }
 
+model ReviewComment {
+  id            String      @id @default(cuid())
+  filePath      String
+  line          Int
+  content       String
+  codeSnippet   String?
+  pullRequestId String
+  pullRequest   PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  chat          String?     // JSON string representing replies: Array<{ role: 'user' | 'assistant', text: string, time: string }>
+}
+
+// db index: PR ID
