@@ -13,3 +13,14 @@ export async function getSessionUser() {
   return session?.user || null;
 }
 
+export async function getUserGithubToken(userId: string) {
+  const account = await prisma.account.findFirst({
+    where: {
+      userId,
+      providerId: "github",
+    },
+  });
+  return account?.accessToken || null;
+}
+
+// safety: parse check
