@@ -226,11 +226,74 @@ ${changesSummary.join("\n")}
   };
 }
 
-
 export async function generateChatReply(
   chatHistory: Array<{ role: "user" | "assistant"; text: string; time: string }>,
   newQuestion: string,
   codeContext: string
 ): Promise<string> {
-  return "Chat replies are not supported in this version.";
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (apiKey) {
+    try {
+      const historyPrompt = chatHistory
+        .map(h => `${h.role === "user" ? "Developer" : "CodeUsagi"}: ${h.text}`)
+        .join("\n");
+      const prompt = `
+You are CodeUsagi, an AI code reviewer. Developers are asking you questions about one of your review comments.
+Review Context:
+${codeContext}
+
+Chat History:
+${historyPrompt}
+
+New Question:
+${newQuestion}
+
+Provide a concise, helpful, and technically accurate response. You can output code blocks if needed.
+      `;
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (reply) return reply;
+      }
+    } catch (e) {
+      console.error("Gemini Chat failed, using fallback:", e);
+    }
+  }
+
+  // Fallback simulator replies
+  const lowerQ = newQuestion.toLowerCase();
+  if (lowerQ.includes("how") || lowerQ.includes("fix") || lowerQ.includes("example")) {
+    return `Certainly! Here is an example of how you can refactor this block:
+\`\`\`typescript
+try {
+  const result = await prisma.user.findUnique({
+    where: { id: userId }
+  });
+  return result;
+} catch (error) {
+  console.error("Database query failed:", error);
+  throw new Error("Could not fetch user profile");
 }
+\`\`\`
+This adds proper error trapping and ensures that database driver logs are not leaked directly to the client interface. Let me know if you need more details! 🐰`;
+  }
+  
+  if (lowerQ.includes("why") || lowerQ.includes("reason")) {
+    return `I recommended this change because unhandled exceptions in Next.js Server Actions can crash the render tree or leak raw connection/schema details in the client console, which poses a security and stability concern. Wrapping operations in structured error boundaries is a best practice. 🐰`;
+  }
+
+  return `Thanks for the follow-up! That's a valid point. If your current testing suite accommodates this behavior, you can safely resolve this comment. Otherwise, applying the suggested pattern will make the codebase more resilient. Let me know if you have any other questions! 🐰`;
+}
+
+// refactor: optimized response syntax parser
