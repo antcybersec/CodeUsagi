@@ -425,37 +425,109 @@ export async function getGithubFileContent(
   }
 }
 
-
 export async function createGithubBranch(
-  token: string,
+  token: string | null,
   owner: string,
   repo: string,
   branchName: string,
-  baseBranch: string = "main"
+  parentBranch: string = "main"
 ): Promise<string | null> {
-  return null;
+  if (!token) return "mock-branch-sha";
+  try {
+    const octokit = getOctokit(token);
+    let selectedParent = parentBranch;
+    try {
+      const { data: repoData } = await octokit.rest.repos.get({ owner, repo });
+      selectedParent = repoData.default_branch;
+    } catch {
+      // Fallback
+    }
+
+    const { data: ref } = await octokit.rest.git.getRef({ owner, repo, ref: `heads/${selectedParent}` });
+    const parentSha = ref.object.sha;
+
+    await octokit.rest.git.createRef({
+      owner,
+      repo,
+      ref: `refs/heads/${branchName}`,
+      sha: parentSha,
+    });
+    return parentSha;
+  } catch (error) {
+    console.error(`Failed to create branch ${branchName}:`, error);
+    return null;
+  }
 }
 
 export async function commitGithubFile(
-  token: string,
+  token: string | null,
   owner: string,
   repo: string,
   branchName: string,
-  filePath: string,
+  path: string,
   content: string,
-  commitMessage: string
+  message: string
 ): Promise<boolean> {
-  return false;
+  if (!token) return true;
+  try {
+    const octokit = getOctokit(token);
+    let sha: string | undefined = undefined;
+
+    try {
+      const { data: fileData } = await octokit.rest.repos.getContent({
+        owner,
+        repo,
+        path,
+        ref: branchName,
+      });
+      if (fileData && !Array.isArray(fileData) && "sha" in fileData) {
+        sha = fileData.sha;
+      }
+    } catch {
+      // File does not exist yet (creating new file)
+    }
+
+    await octokit.rest.repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path,
+      message,
+      content: Buffer.from(content).toString("base64"),
+      branch: branchName,
+      sha,
+    });
+    return true;
+  } catch (error) {
+    console.error(`Failed to commit file ${path} on branch ${branchName}:`, error);
+    return false;
+  }
 }
 
 export async function createGithubPullRequest(
-  token: string,
+  token: string | null,
   owner: string,
   repo: string,
   title: string,
-  headBranch: string,
-  baseBranch: string,
+  head: string,
+  base: string,
   body: string
 ): Promise<string | null> {
-  return null;
+  if (!token) return "https://github.com/mock/pr";
+  try {
+    const octokit = getOctokit(token);
+    const { data } = await octokit.rest.pulls.create({
+      owner,
+      repo,
+      title,
+      head,
+      base,
+      body,
+    });
+    return data.html_url;
+  } catch (error) {
+    console.error(`Failed to create Pull Request:`, error);
+    return null;
+  }
 }
+
+// log: branch validation checks
