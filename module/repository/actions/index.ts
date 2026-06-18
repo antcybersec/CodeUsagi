@@ -40,3 +40,66 @@ export async function syncUserRepositoriesAction() {
   }
 }
 
+export async function importRepositoryAction(owner: string, name: string) {
+  try {
+    const user = await getSessionUser();
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    // Check if repository already exists
+    let dbRepo = await prisma.repository.findFirst({
+      where: { owner, name, userId: user.id },
+    });
+
+    if (!dbRepo) {
+      dbRepo = await prisma.repository.create({
+        data: {
+          owner,
+          name,
+          userId: user.id,
+          isMonitored: true,
+          settings: JSON.stringify({
+            tone: "supportive",
+            strictness: "moderate",
+            ignorePatterns: "",
+          }),
+        },
+      });
+    } else {
+      // Toggle it to monitored if it was already imported
+      dbRepo = await prisma.repository.update({
+        where: { id: dbRepo.id },
+        data: { isMonitored: true },
+      });
+    }
+
+    revalidatePath("/dashboard");
+    return { success: true, repository: dbRepo };
+  } catch (error: any) {
+    console.error("importRepositoryAction error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function toggleRepositoryMonitoringAction(id: string, isMonitored: boolean) {
+  try {
+    const user = await getSessionUser();
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const updatedRepo = await prisma.repository.update({
+      where: { id, userId: user.id },
+      data: { isMonitored },
+    });
+
+    revalidatePath("/dashboard");
+    return { success: true, repository: updatedRepo };
+  } catch (error: any) {
+    console.error("toggleRepositoryMonitoringAction error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+// check: import error format
