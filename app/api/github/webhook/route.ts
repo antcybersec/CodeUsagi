@@ -201,13 +201,109 @@ export async function POST(request: Request) {
       }
 
       // Appending instructions to trigger code generation in JSON format
-      
-      const fixJsonRegex = /\[CODEUSAGI_FIX_JSON\]([\s\S]*?)\[\/CODEUSAGI_FIX_JSON\]/;
-      let prUrl = "";
-      let aiResponseText = await generateChatReply([], commentBody, codebaseContext);
-      
-      // Format reply and append signature
+      let customPromptModifier = "";
+      if (isFixRequest) {
+        console.log("🛠️ [CodeUsagi Webhook] Code fix requested! Injecting JSON instruction modifier...");
+        customPromptModifier = `
+\n\n
+IMPORTANT SYSTEM INSTRUCTION: The developer wants you to write a code fix for this issue and automatically raise a Pull Request on GitHub.
+Review the codebase details and decide which files need to be edited or created.
+First, write a clear explanation of what you are fixing.
+Then, you MUST output the complete new file contents for any file you want to edit or create inside a special JSON block.
+Format the JSON exactly like this:
+[CODEUSAGI_FIX_JSON]
+{
+  "files": [
+    {
+      "path": "path/to/file/to/change.js",
+      "content": "the complete content of the file"
+    }
+  ]
+}
+[/CODEUSAGI_FIX_JSON]
 
+Ensure the JSON is completely valid, double-escape any backslashes or newlines in the string, and do not truncate the file content. Output the full file contents.
+`;
+      }
+
+      let aiResponseText = "";
+
+      if (isPR) {
+        console.log(`📖 [CodeUsagi Webhook] Comment is on a PR. Fetching PR file changes for context...`);
+        const files = await getGithubPRDiff(githubToken, repoOwner, repoName, issueNumber);
+        const diffContext = files.map(f => `File: ${f.filePath}\nDiff:\n${f.diff}`).join("\n\n");
+        
+        aiResponseText = await generateChatReply(
+          [],
+          commentBody + customPromptModifier,
+          `Pull Request #${issueNumber} Details:\nTitle: ${payload.issue.title}\nDescription: ${payload.issue.body}\n\n${codebaseContext}\nFile Diffs:\n${diffContext}`
+        );
+      } else {
+        console.log(`📖 [CodeUsagi Webhook] Comment is on a standard issue. Fetching issue details...`);
+        aiResponseText = await generateChatReply(
+          [],
+          commentBody + customPromptModifier,
+          `GitHub Issue #${issueNumber} Context:\nTitle: ${payload.issue.title}\nDescription: ${payload.issue.body}\n\n${codebaseContext}`
+        );
+      }
+
+      // Scan for JSON block to apply the fix
+      const fixJsonRegex = /\[CODEUSAGI_FIX_JSON\]([\s\S]*?)\[\/CODEUSAGI_FIX_JSON\]/;
+      const match = aiResponseText.match(fixJsonRegex);
+      
+      let prUrl = "";
+      if (match) {
+        try {
+          const jsonContent = match[1].trim();
+          const fixData = JSON.parse(jsonContent);
+          const filesToFix = fixData.files || [];
+          
+          if (filesToFix.length > 0) {
+            console.log(`🛠️ [CodeUsagi Webhook] Found ${filesToFix.length} files to modify. Preparing branch and PR...`);
+            
+            // Generate a random suffix for the branch name
+            const branchName = `codeusagi-fix-issue-${issueNumber}-${Math.floor(100 + Math.random() * 900)}`;
+            const branchSha = await createGithubBranch(githubToken, repoOwner, repoName, branchName, "main");
+            
+            if (branchSha) {
+              let allCommitsSucceeded = true;
+              for (const file of filesToFix) {
+                console.log(`📝 [CodeUsagi Webhook] Committing automated changes to "${file.path}" on branch "${branchName}"...`);
+                const success = await commitGithubFile(
+                  githubToken,
+                  repoOwner,
+                  repoName,
+                  branchName,
+                  file.path,
+                  file.content,
+                  `CodeUsagi: Automated fix for issue #${issueNumber}`
+                );
+                if (!success) allCommitsSucceeded = false;
+              }
+              
+              if (allCommitsSucceeded) {
+                console.log(`📤 [CodeUsagi Webhook] Raising Pull Request...`);
+                const raisedPrUrl = await createGithubPullRequest(
+                  githubToken,
+                  repoOwner,
+                  repoName,
+                  `CodeUsagi Fix: #${issueNumber} ${payload.issue.title}`,
+                  branchName,
+                  "main",
+                  `This Pull Request was raised automatically by CodeUsagi 🐰 to resolve issue #${issueNumber}.\n\n### Proposed Changes:\n- Automated code fix generated based on developer request.`
+                );
+                if (raisedPrUrl) {
+                  prUrl = raisedPrUrl;
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.error("❌ [CodeUsagi Webhook] Failed to parse or apply code fix JSON:", e);
+        }
+      }
+
+      // Format reply and append signature
       let cleanAiResponse = aiResponseText;
       if (prUrl) {
         cleanAiResponse = aiResponseText.replace(fixJsonRegex, "").trim();
