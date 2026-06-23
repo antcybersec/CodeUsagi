@@ -186,7 +186,7 @@ export default function Home() {
         <ProcessSteps />
         <WhatsDriving />
         <Testimonials />
-        
+        <Faq />
         <CtaCard handleLogin={handleLogin} session={session} loggingIn={loggingIn} isPending={isPending} router={router} />
         <Footer />
       </div>
@@ -522,8 +522,7 @@ function Testimonials() {
   );
 }
 
-function Faq() { return null; } 
-function OldFaq() {
+function Faq() {
   const items = [
     {
       q: "What is CodeUsagi?",
