@@ -14,9 +14,12 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
 });
 
-export const metadata = { title: 'CodeUsagi' };
+export const metadata: Metadata = {
+  title: "CodeUsagi | AI Pull Request Reviewer",
+  description: "🐰 CodeUsagi is an AI-powered code review assistant that reviews pull requests line-by-line, writes high-level summaries, and lets you chat with your code changes.",
+};
 
-({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
