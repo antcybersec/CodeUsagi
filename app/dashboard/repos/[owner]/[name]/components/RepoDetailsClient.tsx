@@ -29,8 +29,7 @@ interface RepoDetailsClientProps {
   pullRequests: PullRequest[];
 }
 
-const CloverPattern = ({ className }: { className?: string }) => null; 
-const OldClover = ({ className }: { className?: string }) => (
+const CloverPattern = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <circle cx="38" cy="50" r="20" stroke="currentColor" strokeWidth="1.2" />
     <circle cx="62" cy="50" r="20" stroke="currentColor" strokeWidth="1.2" />
