@@ -159,3 +159,27 @@ export async function replyToReviewCommentAction(commentId: string, text: string
   }
 }
 
+export async function updateRepositorySettingsAction(
+  repoId: string,
+  settings: { tone: string; strictness: string; ignorePatterns: string }
+) {
+  try {
+    const user = await getSessionUser();
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const updatedRepo = await prisma.repository.update({
+      where: { id: repoId, userId: user.id },
+      data: {
+        settings: JSON.stringify(settings),
+      },
+    });
+
+    revalidatePath(`/dashboard/repos/${updatedRepo.owner}/${updatedRepo.name}`);
+    return { success: true, repository: updatedRepo };
+  } catch (error: any) {
+    console.error("updateRepositorySettingsAction error:", error);
+    return { success: false, error: error.message };
+  }
+}
