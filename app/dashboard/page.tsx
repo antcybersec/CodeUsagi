@@ -26,7 +26,7 @@ export default async function DashboardPage() {
     console.error("Failed to fetch Github repositories on server load:", error);
   }
 
-  const dbRepoMap = new Map(dbRepos.map((r: any) => [`${r.owner}/${r.name}`, r]));
+  const dbRepoMap = new Map<string, any>(dbRepos.map((r: any) => [`${r.owner}/${r.name}`, r]));
 
   // Merge GitHub repos with DB status
   const mergedGithubRepos = githubRepos.map((gr: any) => {

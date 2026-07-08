@@ -18,7 +18,7 @@ export async function GET() {
       where: { userId: user.id },
     });
 
-    const dbRepoMap = new Map(dbRepos.map((r: any) => [`${r.owner}/${r.name}`, r]));
+    const dbRepoMap = new Map<string, any>(dbRepos.map((r: any) => [`${r.owner}/${r.name}`, r]));
 
     // Merge GitHub repos with DB status
     const repos = githubRepos.map((gr: any) => {
