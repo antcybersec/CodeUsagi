@@ -254,13 +254,25 @@ export default function DashboardClient({
               <h1 className="text-2xl font-extrabold tracking-tight text-white font-display">repositories</h1>
               <p className="text-xs text-white/50 mt-1">Manage connected repositories, review rules, and Pull Request summaries.</p>
             </div>
-            <button
-              onClick={handleSyncGithub}
-              disabled={isSyncing}
-              className="px-4 py-2 rounded-full text-xs font-bold border border-white/15 bg-white/5 text-white hover:bg-white/10 flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer lowercase-mono"
-            >
-              <FaSync className={`${isSyncing ? "animate-spin text-white" : "text-white"}`} /> sync git repositories
-            </button>
+            <div className="flex items-center gap-3">
+              <a
+                href={`https://github.com/apps/${process.env.NEXT_PUBLIC_GITHUB_APP_NAME || "codeusagi-ai"}/installations/new`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 transition-all cursor-pointer lowercase-mono ${
+                  theme === "dark" ? "bg-white text-black hover:bg-white/90" : "bg-black text-white hover:bg-black/90"
+                }`}
+              >
+                <FaRobot /> install bot
+              </a>
+              <button
+                onClick={handleSyncGithub}
+                disabled={isSyncing}
+                className="px-4 py-2 rounded-full text-xs font-bold border border-white/15 bg-white/5 text-white hover:bg-white/10 flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer lowercase-mono"
+              >
+                <FaSync className={isSyncing ? "animate-spin" : ""} /> {isSyncing ? "syncing..." : "sync list"}
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
