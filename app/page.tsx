@@ -114,7 +114,7 @@ export default function Home() {
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
             <a 
-              href="https://github.com/anantkumar-001/rudra"
+              href="https://github.com/antcybersec/CodeUsagi"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm text-white hover:bg-white/10 cursor-pointer"
@@ -600,7 +600,7 @@ function CtaCard({
             <Github className="h-4 w-4" /> {session ? "Go to Dashboard" : "Start now with GitHub"}
           </button>
           <a 
-            href="https://github.com/anantkumar-001/rudra"
+            href="https://github.com/antcybersec/CodeUsagi"
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm text-white backdrop-blur hover:bg-white/10 cursor-pointer"
